@@ -3,9 +3,9 @@
 $message_sent = false;
 if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['token_response'])){
     $url ='https://www.google.com/recaptcha/api/siteverify';
-    $secret = '6LfXD4cdAAAAABe-I0FJJ6Fw5MMqpcYhHe_LiBYf';
+    $secret = 'secret_captcha_key';
     $recaptcha_response =$_POST['token_response'];
-    $request=file_get_contents($url.'?secret='.$secret.'&&response='.$recaptcha_response);
+    $request=file_get_contents($url.'?secret='.$secret.'&response='.$recaptcha_response);
     $response = json_decode($request);
     if($response->success==true && $response->score >= 0.5){
         echo '<script language="javascript">';
@@ -334,6 +334,14 @@ try {
                     </div>
                 </div>
                 <div class="column right">
+                <?php
+                    if ($message_sent) :
+                    ?>
+                        <p>Message envoyé !</p>
+                        <p>Je vous recontacte au plus vite, merci !</p>
+                    <?php
+                    else :
+                    ?>
                         <div class="text">
                             Pour m'envoyer un message</div>
                         <form action="index.php" method="post" name="contact">
@@ -363,6 +371,9 @@ try {
                                 <button type="submit" value="Envoyer !">Envoyer</button>
                             </div>
                         </form>
+                        <?php
+                    endif;
+                    ?>
                 </div>
             </div>
         </div>
@@ -376,7 +387,7 @@ try {
 
     <!-- Somehow I got an error, so I comment the script tag, just uncomment to use -->
 
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.11/typed.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>

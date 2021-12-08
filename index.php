@@ -1,6 +1,25 @@
 <?php
 
 $message_sent = false;
+if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['token_response'])){
+    $url ='https://www.google.com/recaptcha/api/siteverify';
+    $secret = '6LfXD4cdAAAAABe-I0FJJ6Fw5MMqpcYhHe_LiBYf';
+    $recaptcha_response =$_POST['token_response'];
+    $request=file_get_contents($url.'?secret='.$secret.'&&response='.$recaptcha_response);
+    $response = json_decode($request);
+    if($response->success==true && $response->score >= 0.5){
+        echo '<script language="javascript">';
+        echo 'alert("Merci de m\'avoir contacter, je vous répondrai le plus rapidement possible")';
+        echo '</script>';
+        echo "<script>setTimeout(\"location.href='index.php';\", 00)';</script>";
+
+    }else{
+        echo '<script language="javascript">';
+        echo 'alert("Erreur")';
+        echo '</script>';
+        echo "<script>setTimeout(\"location.href='index.php';\", 00)';</script>";
+    }
+}
 if (isset($_POST['email']) && $_POST['email'] != '') {
 
     if (filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
@@ -32,9 +51,8 @@ if (isset($_POST['email']) && $_POST['email'] != '') {
 try {
     $pdo = new PDO('mysql:host=localhost;dbname=site_perso', 'root', ''); 
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    $requete = 'SELECT * FROM projects';
-    $result = $pdo->query($requete);
+    $req = 'SELECT * FROM projects';
+    $result = $pdo->query($req);
     $projects  = $result->fetchAll(PDO::FETCH_NUM);
 }catch(PDOException $e) {
     echo 'Échec lors de la connexion : ' . $e->getMessage();
@@ -53,6 +71,18 @@ try {
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" integrity="sha384-vSIIfh2YWi9wW0r9iZe7RJPrKwp6bG+s9QZMoITbCckVJqGCCRhc+ccxNcdpHuYu" crossorigin="anonymous">
 
     <title>Ben Meziani</title>
+<script src="https://www.google.com/recaptcha/api.js?render=6LfXD4cdAAAAAJw2mPfKO16zG29bPb16GvmGi_zg"></script>
+
+   <script>
+        grecaptcha.ready(function() {
+          grecaptcha.execute('6LfXD4cdAAAAAJw2mPfKO16zG29bPb16GvmGi_zg', {action: 'submit'}).then(function(token) {
+              // Add your logic to submit to your backend server here.
+
+              var response=document.getElementById('token_response');
+              response.value=token;
+          });
+        });
+  </script>
 </head>
 
 <body>
@@ -107,14 +137,13 @@ try {
                     <p>
                         Anciennement réceptionniste en hôtellerie, je me suis reconverti au
                         métier de développeur web pour suivre ma passion de toujours. Aujourd'hui,
-                        je suis arrivé au terme de ma formation
-                        Développeur Web et Web mobile. </p><br>
+                    fort d'une expérience que j'ai pu acquérir sur des projets personnels et professionnels. </p><br>
                     <p>Je
-                        souhaite donc trouver une entreprise pour une première réelle expérience
+                        souhaite donc trouver une entreprise pour une nouvelle expérience
                         dans le milieu professionnel du développement web. Je suis donc à la
                         recherche de l'entreprise avec laquelle je pourrai continuer à m'épanouir
                         tout en
-                        apportant mon savoir-faire nouvellement acquis et mon expérience éclectique.
+                        apportant mon savoir-faire.
                     </p>
                     <a href="data/cv.pdf" target="_blank">Download CV</a>
                 </div>
@@ -257,12 +286,6 @@ try {
                 Contactez moi</h2>
             <div class="contact-content">
                 <div class="column left">
-                    <!-- <div class="text">
-                        Get in Touch</div>
-                    <p>
-                        Lorem, ipsum dolor sit amet consectetur adipisicing elit. Dignissimos harum corporis fuga
-                        corrupti. Doloribus quis soluta nesciunt veritatis vitae nobis?</p> -->
-                    <div class="icons">
                         <div class="row">
                             <i class="fas fa-user"></i>
                             <div class="info">
@@ -311,17 +334,10 @@ try {
                     </div>
                 </div>
                 <div class="column right">
-                    <?php
-                    if ($message_sent) :
-                    ?>
-                        <p>Message envoyé !</p>
-                        <p>Je vous recontacte au plus vite, merci !</p>
-                    <?php
-                    else :
-                    ?>
                         <div class="text">
                             Pour m'envoyer un message</div>
                         <form action="index.php" method="post" name="contact">
+                            <input type="hidden" id="token_response" name="token_response">
                             <div class="fields">
                                 <div class="field name">
                                     <input type="text" name="name" placeholder="Votre nom" value="" required>
@@ -347,9 +363,6 @@ try {
                                 <button type="submit" value="Envoyer !">Envoyer</button>
                             </div>
                         </form>
-                    <?php
-                    endif;
-                    ?>
                 </div>
             </div>
         </div>
